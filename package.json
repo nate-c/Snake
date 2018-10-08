@@ -1,0 +1,19 @@
+{
+  "name": "snake",
+  "version": "1.0.0",
+  "description": "basic JS implementation of snake",
+  "main": "snake.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nate-c/Snake.git"
+  },
+  "author": "Nate",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nate-c/Snake/issues"
+  },
+  "homepage": "https://github.com/nate-c/Snake#readme"
+}
