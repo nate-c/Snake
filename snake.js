@@ -15,6 +15,12 @@ var timeout = 800;
 var canvasWidth = 1000;
 var canvasHeight = 1000;
 
+//starting up
+window.onload = function() {
+    startSnakeGame();
+    //var c=document.getElementById("myCanvas");
+    //var ctx=c.getContext("2d");
+}
 
 //function definitions
 function updateRectPosition(rect,prevX,prevY,newX,newY) {
@@ -37,12 +43,15 @@ function getRandomCoordinate(min, max) {
 function startSnakeGame() {
     let snake = new Snake();
     let apple = createApple();
-    if(apple === snake.snakeArray[0]) {
-        while(apple === snake.snakeArray[0]) {
-            apple.changeAppleCoord();
-        }
-    }
-    snake.renderSnake();  
+    console.log('hit start snake');
+    // if(apple === snake.snakeArray[0]) {
+    //     while(apple === snake.snakeArray[0]) {
+    //         apple.changeAppleCoord();
+    //     }
+    // }
+    snake.initialize();
+    snake.renderSnake();
+    apple.renderApple();  
 }
 
 class Rectangle {
@@ -57,10 +66,17 @@ class Rectangle {
 
 }
 class Apple extends Rectangle {
-    super(constructor)
-
+    // super(constructor)
+    constructor(xPos, yPos) {
+        super(xPos,yPos);
+    }
     changeAppleCoord() {
         createApple();
+    }
+    renderApple(){
+        ctx.rect(this.x, this.y, 
+            this.width, this.length);
+        ctx.stroke();
     }
 }
 class Snake {
@@ -72,6 +88,7 @@ class Snake {
         this.addHead();
         this.addTail();
         this.addTail();
+        console.log('snake array', this.snakeArray);
     }
     addHead() {
         let newHead = new Rectangle(50,50);
@@ -115,9 +132,12 @@ class Snake {
     renderSnake() {
         for(let snakeSection in this.snakeArray) {
             // x, y, width, length
-            ctx.rect(snakeSection.x, snakeSection.y, 
+            ctx.fillStyle = headStyle;
+            ctx.fillRect(snakeSection.x, snakeSection.y, 
                 snakeSection.width, snakeSection.length);
+            ctx.stroke();
+            console.log('stroking');
         }
-        ctx.stroke();
+        //ctx.stroke();
     }
 }
