@@ -4,11 +4,10 @@
 
 */
 // variable definitions
-var canvas = document.getElementById("Snake");
-var ctx = canvas.getContext("2d");
-var headStyle = "#0f0";
-var tailStyle = "#eee";
-var appleStyle = "#f00";
+
+var headStyle = '#000';
+var tailStyle = '#eee';
+var appleStyle = '#f00';
 var rectangleSide = 10;
 var currDirection = "right";
 var timeout = 800;
@@ -17,7 +16,9 @@ var canvasHeight = 1000;
 
 //starting up
 window.onload = function() {
-    startSnakeGame();
+    let canvas = document.getElementById("Snake");
+    let ctx = canvas.getContext("2d");
+    startSnakeGame(ctx);
     //var c=document.getElementById("myCanvas");
     //var ctx=c.getContext("2d");
 }
@@ -37,12 +38,15 @@ function createApple() {
 function getRandomCoordinate(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+    let number =  Math.floor(Math.random() * (max - min + 1)) + min;
+    // ensures coordinates are always within bounds and has coordinate which is a multiple of 10
+    return number - number % 10;
 }
 
-function startSnakeGame() {
+function startSnakeGame(context) {
     let snake = new Snake();
     let apple = createApple();
+    console.log('apple',apple);
     console.log('hit start snake');
     // if(apple === snake.snakeArray[0]) {
     //     while(apple === snake.snakeArray[0]) {
@@ -50,8 +54,23 @@ function startSnakeGame() {
     //     }
     // }
     snake.initialize();
-    snake.renderSnake();
-    apple.renderApple();  
+    snake.renderSnake(context);
+    apple.renderApple(context);  
+    // let test = snake.snakeArray[0];
+    // for(let i = 0; i < snake.snakeArray; i++) {
+    //     if(i===0) {
+    //         context.fillStyle = headStyle;
+    //     } else {
+    //         context.fillStyle = tailStyle;
+    //     }
+
+    //     context.fillRect(snakeArray[i].x, snakeArray[i].y, 
+    //         snakeArray[i].width, snakeArray[i].len);
+    // }
+    // context.fillStyle = appleStyle;
+    // context.fillRect(apple.x,apple.y,apple.width,apple.len);
+    // context.fillStyle = '#0fe';
+    // context.fillRect(test.x,test.y,test.width,test.len);
 }
 
 class Rectangle {
@@ -73,10 +92,10 @@ class Apple extends Rectangle {
     changeAppleCoord() {
         createApple();
     }
-    renderApple(){
-        ctx.rect(this.x, this.y, 
+    renderApple(ctx){
+        ctx.fillStyle = appleStyle;
+        ctx.fillRect(this.x, this.y, 
             this.width, this.length);
-        ctx.stroke();
     }
 }
 class Snake {
@@ -129,15 +148,27 @@ class Snake {
         }
         this.snakeArray = newSnakeArray;
     }
-    renderSnake() {
-        for(let snakeSection in this.snakeArray) {
-            // x, y, width, length
-            ctx.fillStyle = headStyle;
-            ctx.fillRect(snakeSection.x, snakeSection.y, 
-                snakeSection.width, snakeSection.length);
-            ctx.stroke();
-            console.log('stroking');
+    renderSnake(ctx) {
+        for(let i = 0; i < this.snakeArray; i++) {
+            if(i===0) {
+                ctx.fillStyle = headStyle;
+            } else {
+                ctx.fillStyle = tailStyle;
+            }
+            let rect = this.snakeArray[i];
+            console.log('rect', rect);
+            ctx.fillRect(rect.x, rect.y, rect.width, rect.len);
+            
         }
+        // for(let snakeSection in this.snakeArray) {
+        //     // x, y, width, length
+        //     ctx.fillStyle = headStyle;
+        //     ctx.fillRect(snakeSection.width, snakeSection.length, snakeSection.x, snakeSection.y);
+        //     // ctx.fillRect(snakeSection.x, snakeSection.y, 
+        //     //     snakeSection.width, snakeSection.length);
+        //     //ctx.stroke();
+        //     console.log('stroking');
+        // }
         //ctx.stroke();
     }
 }
