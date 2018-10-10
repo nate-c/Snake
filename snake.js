@@ -16,13 +16,13 @@ var canvasHeight = 1000;
 var isGameOver = false;
 var snakeGameObj; 
 var appleGameObj;  
+var interval;
 
 //starting up
 window.onload = function() {
-    let canvas = document.getElementById("Snake");
-    let ctx = canvas.getContext("2d");
-    initializeSnakeGame(ctx);
+    resetGame();
 }
+
 document.onkeydown = function(e) {
     e = e || window.event;
     // var charCode = (typeof e.which == "number") ? e.which : e.keyCode;
@@ -33,16 +33,24 @@ document.onkeydown = function(e) {
     console.log('key',key);
     switch(key) {
         case 37:
-            setDirection("left");
+            if(currentDirection !== 'right') {
+                setDirection('left');
+            }            
             break;        
         case 38:
-            setDirection("down");
+            if(currentDirection !== 'down') {
+                setDirection('up');                
+            }
             break;
         case 39:
-            setDirection("right");
+            if(currentDirection !== 'left') {
+                setDirection('right');                
+            }
             break;        
         case 40:
-            setDirection("up");
+            if(currentDirection !== 'up') {
+                setDirection('down');                
+            }        
             break;
         default:
             break;
@@ -52,22 +60,28 @@ document.onkeydown = function(e) {
 // function definitions
 function startGame(){
     console.log('started game');
-     var interval =setInterval(function() {
+     interval =setInterval(function() {
             if(isGameOver) {
-                clearInterval(clearInterval);
+                clearInterval(interval);
             }
             snakeGameObj.move();
         },timeout); 
+}
+function resetGame()
+{
+    let canvas = document.getElementById("Snake");
+    let ctx = canvas.getContext("2d");
+    initializeSnakeGame(ctx);
 }
 function getRectWithUpdatedPosition(rect) {
     console.log('rect', rect);
     let newRect;
     switch(currentDirection) {
         case "up":
-            newRect = new Rectangle(rect.x, rect.y + rectangleSide);
+            newRect = new Rectangle(rect.x, rect.y - rectangleSide);
             break;
         case "down":
-            newRect = new Rectangle(rect.x, rect.y - rectangleSide);        
+            newRect = new Rectangle(rect.x, rect.y + rectangleSide);        
             break;
         case "left":
             newRect = new Rectangle(rect.x - rectangleSide, rect.y);        
@@ -112,6 +126,9 @@ function initializeSnakeGame(context) {
     snakeGameObj.renderSnake(context);
     appleGameObj.renderApple(context);  
 }
+function hasGameEnded(headOfSnake) {
+    return headOfSnake.x < 0 || headOfSnake.x > canvasWidth || headOfSnake.y < 0 || headOfSnake.y > canvasHeight
+}
 // class definitions
 class Rectangle {
 
@@ -130,7 +147,8 @@ class Apple extends Rectangle {
         super(xPos,yPos);
     }
     changeAppleCoord() {
-        createApple();
+        this.x = getRandomCoordinate(10, canvasWidth - rectangleSide);
+        this.y = getRandomCoordinate(10, canvasHeight - rectangleSide);
     }
     renderApple(ctx){
         ctx.fillStyle = appleStyle;
@@ -160,13 +178,13 @@ class Snake {
                 newTail.x -= 10
                 break;
             case "left":
-                newTail += 10;
+                newTail.x += 10;
                 break;
             case "up":
-                newTail.y -= 10;
+                newTail.y += 10;
                 break;
             case "down":
-                newTail.y += 10;
+                newTail.y -= 10;
                 break;
             // default is right
             default:
@@ -188,29 +206,32 @@ class Snake {
     }
     //TO FIX
     move() {
+        let newSnakeArray = [];
+        let head = this.snakeArray[0];
+        if(hasGameEnded(head)) {
+            isGameOver = true;
+        }
         if(isGameOver) {
             console.log('reached game over');
             return;
         }
-        let newSnakeArray = [];
-        let head = this.snakeArray[0];
+        
         //adding updated head to array first, then adding the rest of the value
         let firstRect = getRectWithUpdatedPosition(head);
-        for(let i = 0; i < this.snakeArray.length; i++) {
-            if(i === 0 ) {
-                newSnakeArray.push(firstRect);
-            } 
-            else {
-                newSnakeArray.push(this.snakeArray[i-1]);
-            }
+        if(hasGameEnded(firstRect)){
+            isGameOver = true;
+            return;
+        }
+        newSnakeArray.push(firstRect);
+        for(let i = 1; i < this.snakeArray.length; i++) {
+            newSnakeArray.push(this.snakeArray[i-1]);
         }
         this.snakeArray = newSnakeArray;
 
-        if(head.x < 0 || head.x > canvasWidth) { 
-            isGameOver = true;
-        }
-        if(head.y < 0 || head.y > canvasHeight) { 
-            isGameOver = true;
+        //check to see if apple was eaten
+        if(this.hasEatenApple(head)) {
+            this.addTail();
+            appleGameObj.changeAppleCoord();
         }
         let canvas = document.getElementById("Snake");
         let ctx = canvas.getContext("2d");
@@ -220,5 +241,8 @@ class Snake {
     }
     eatApple() {
         this.addTail();
+    }
+    hasEatenApple(headOfSnake) {
+        return headOfSnake.x === appleGameObj.x && headOfSnake.y === appleGameObj.y;
     }
 }
