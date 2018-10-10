@@ -21,12 +21,7 @@ window.onload = function() {
 
 document.onkeydown = function(e) {
     e = e || window.event;
-    // var charCode = (typeof e.which == "number") ? e.which : e.keyCode;
-    // if (charCode) {
-    //     console.log("Character typed: " + String.fromCharCode(charCode));
-    // }
     let key = e.keyCode;
-    console.log('key',key);
     switch(key) {
         case 37:
             if(currentDirection !== 'right') {
@@ -52,10 +47,8 @@ document.onkeydown = function(e) {
             break;
     }
 };
-
 // function definitions
 function startGame(){
-    console.log('started game');
      interval =setInterval(function() {
             if(isGameOver) {
                 clearInterval(interval);
@@ -110,7 +103,7 @@ function getRandomCoordinate(min, max) {
     return number - number % 10;
 }
 function initializeSnakeGame(context) {
-    console.log('hit start snake');
+    //set up game objects
     snakeGameObj = new Snake();
     appleGameObj = createApple();   
     snakeGameObj.initialize();    
@@ -134,12 +127,9 @@ class Rectangle {
         this.y = yPos;
         this.len = rectangleSide;
         this.width = rectangleSide;
-        // this.direction = currDirection;
     }
-
 }
 class Apple extends Rectangle {
-    // super(constructor)
     constructor(xPos, yPos) {
         super(xPos,yPos);
     }
@@ -169,7 +159,7 @@ class Snake {
     addTail() {
         const currTail = this.snakeArray[this.snakeArray.length - 1];
         let newTail = new Rectangle(currTail.x, currTail.y);
-
+        //figures out where the tail should be added based on current end of the snake
         switch(currentDirection){
             case "right":
                 newTail.x -= 10
@@ -207,12 +197,13 @@ class Snake {
         //checks for the gameover conditions before position updates
         if(isOutOfBounds(head)) {
             isGameOver = true;
+            return;
         }
         if(this.hasIntersectedWithSelf(head)){
             isGameOver = true;
+            return;
         }
         if(isGameOver) {
-            console.log('reached game over');
             return;
         }
         
@@ -225,6 +216,7 @@ class Snake {
         }
         if(this.hasIntersectedWithSelf(newHead)){
             isGameOver = true;
+            return;
         }
         newSnakeArray.push(newHead);
         for(let i = 1; i < this.snakeArray.length; i++) {
@@ -243,9 +235,6 @@ class Snake {
         this.renderSnake(ctx);
         appleGameObj.renderApple(ctx);
     }
-    eatApple() {
-        this.addTail();
-    }
     hasEatenApple(headOfSnake) {
         //checks to see if x and y coordinates are the same
         return headOfSnake.x === appleGameObj.x && headOfSnake.y === appleGameObj.y;
@@ -253,10 +242,6 @@ class Snake {
     hasIntersectedWithSelf(head) {
         // I set length to greater than 1, bc filtering on the head will by default always bring back the first element, 
         // and any elements after that will be the true intersection
-        console.log('head',head);
-        const testArr = this.snakeArray.filter(x => x.x === head.x && x.y === head.y);
-        console.log('intersection array', testArr);
-        console.log('has intersected', this.snakeArray.filter(x => x.x === head.x && x.y === head.y).length > 1);
         return this.snakeArray.filter(x => x.x === head.x && x.y === head.y).length > 1;
     }
 }
