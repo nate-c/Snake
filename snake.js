@@ -149,7 +149,7 @@ class Snake {
         this.snakeArray = newSnakeArray;
     }
     renderSnake(ctx) {
-        for(let i = 0; i < this.snakeArray; i++) {
+        for(let i = 0; i < this.snakeArray.length; i++) {
             if(i===0) {
                 ctx.fillStyle = headStyle;
             } else {
