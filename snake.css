@@ -1,5 +1,9 @@
+body {
+    display: block;
+}
 .canvas {
-    /* width: 1000px;
-    height: 1000px; */
     border: 1px solid #000;
+}
+#startButton {
+    align-content: center;
 }
