@@ -48,6 +48,7 @@ function startSnakeGame(context) {
     let apple = createApple();
     console.log('apple',apple);
     console.log('hit start snake');
+    // reset apple position if it ends up having same coordinates as one of the snake pieces
     // if(apple === snake.snakeArray[0]) {
     //     while(apple === snake.snakeArray[0]) {
     //         apple.changeAppleCoord();
@@ -56,21 +57,6 @@ function startSnakeGame(context) {
     snake.initialize();
     snake.renderSnake(context);
     apple.renderApple(context);  
-    // let test = snake.snakeArray[0];
-    // for(let i = 0; i < snake.snakeArray; i++) {
-    //     if(i===0) {
-    //         context.fillStyle = headStyle;
-    //     } else {
-    //         context.fillStyle = tailStyle;
-    //     }
-
-    //     context.fillRect(snakeArray[i].x, snakeArray[i].y, 
-    //         snakeArray[i].width, snakeArray[i].len);
-    // }
-    // context.fillStyle = appleStyle;
-    // context.fillRect(apple.x,apple.y,apple.width,apple.len);
-    // context.fillStyle = '#0fe';
-    // context.fillRect(test.x,test.y,test.width,test.len);
 }
 
 class Rectangle {
@@ -160,15 +146,5 @@ class Snake {
             ctx.fillRect(rect.x, rect.y, rect.width, rect.len);
             
         }
-        // for(let snakeSection in this.snakeArray) {
-        //     // x, y, width, length
-        //     ctx.fillStyle = headStyle;
-        //     ctx.fillRect(snakeSection.width, snakeSection.length, snakeSection.x, snakeSection.y);
-        //     // ctx.fillRect(snakeSection.x, snakeSection.y, 
-        //     //     snakeSection.width, snakeSection.length);
-        //     //ctx.stroke();
-        //     console.log('stroking');
-        // }
-        //ctx.stroke();
     }
 }
