@@ -9,7 +9,7 @@ var headStyle = '#000';
 var tailStyle = '#eee';
 var appleStyle = '#f00';
 var rectangleSide = 10;
-var currDirection = "right";
+var currentDirection = "right";
 var timeout = 400;
 var canvasWidth = 1000;
 var canvasHeight = 1000;
@@ -23,19 +23,67 @@ window.onload = function() {
     let ctx = canvas.getContext("2d");
     initializeSnakeGame(ctx);
 }
+document.onkeydown = function(e) {
+    e = e || window.event;
+    // var charCode = (typeof e.which == "number") ? e.which : e.keyCode;
+    // if (charCode) {
+    //     console.log("Character typed: " + String.fromCharCode(charCode));
+    // }
+    let key = e.keyCode;
+    console.log('key',key);
+    switch(key) {
+        case 37:
+            setDirection("left");
+            break;        
+        case 38:
+            setDirection("down");
+            break;
+        case 39:
+            setDirection("right");
+            break;        
+        case 40:
+            setDirection("up");
+            break;
+        default:
+            break;
+    }
+};
+
+// function definitions
 function startGame(){
     console.log('started game');
-    while(!isGameOver) {
-        setTimeout(snakeGameObj.move(),timeout)
-
+     var interval =setInterval(function() {
+            if(isGameOver) {
+                clearInterval(clearInterval);
+            }
+            snakeGameObj.move();
+        },timeout); 
+}
+function getRectWithUpdatedPosition(rect) {
+    console.log('rect', rect);
+    let newRect;
+    switch(currentDirection) {
+        case "up":
+            newRect = new Rectangle(rect.x, rect.y + rectangleSide);
+            break;
+        case "down":
+            newRect = new Rectangle(rect.x, rect.y - rectangleSide);        
+            break;
+        case "left":
+            newRect = new Rectangle(rect.x - rectangleSide, rect.y);        
+            break;
+        case "right":
+            newRect = new Rectangle(rect.x + rectangleSide, rect.y);          
+            break;
+        default:
+            break;
     }
+    return newRect;
 }
-
-//function definitions
-function updateRectPosition(rect,prevX,prevY,newX,newY) {
-    // let newRect = new Rectangle();
+function setDirection(direction) {
+    currentDirection = direction;
+    console.log('key pressed', direction);
 }
-
 function createApple() {
 
     let randomXCoord = getRandomCoordinate(10, canvasWidth - rectangleSide);
@@ -50,7 +98,6 @@ function getRandomCoordinate(min, max) {
     // ensures coordinates are always within bounds and has coordinate which is a multiple of 10
     return number - number % 10;
 }
-
 function initializeSnakeGame(context) {
     console.log('hit start snake');
     snakeGameObj = new Snake();
@@ -64,10 +111,8 @@ function initializeSnakeGame(context) {
     }
     snakeGameObj.renderSnake(context);
     appleGameObj.renderApple(context);  
-    context.fillStyle = appleStyle;
-    context.fillRect(appleGameObj.x, appleGameObj.y, appleGameObj.width,appleGameObj.len);
 }
-
+// class definitions
 class Rectangle {
 
     constructor(xPos,yPos) {
@@ -89,8 +134,7 @@ class Apple extends Rectangle {
     }
     renderApple(ctx){
         ctx.fillStyle = appleStyle;
-        console.log('apple aple', this);
-        ctx.fillRect(this.x, this.y, this.width, this.length);
+        ctx.fillRect(this.x, this.y, this.len, this.width);
     }
 }
 class Snake {
@@ -111,7 +155,7 @@ class Snake {
         const currTail = this.snakeArray[this.snakeArray.length - 1];
         let newTail = new Rectangle(currTail.x, currTail.y);
 
-        switch(currDirection){
+        switch(currentDirection){
             case "right":
                 newTail.x -= 10
                 break;
@@ -144,17 +188,35 @@ class Snake {
     }
     //TO FIX
     move() {
-        // let newSnakeArray = [];
-        // for(let i = 0; i < this.snakeArray.length; i++) {
-        //     if(i === 0) {
-        //         let head = this.snakeArray[0];
-        //         // updateRectPosition(head,head.x, head.y,)
-        //     }
+        if(isGameOver) {
+            console.log('reached game over');
+            return;
+        }
+        let newSnakeArray = [];
+        let head = this.snakeArray[0];
+        //adding updated head to array first, then adding the rest of the value
+        let firstRect = getRectWithUpdatedPosition(head);
+        for(let i = 0; i < this.snakeArray.length; i++) {
+            if(i === 0 ) {
+                newSnakeArray.push(firstRect);
+            } 
+            else {
+                newSnakeArray.push(this.snakeArray[i-1]);
+            }
+        }
+        this.snakeArray = newSnakeArray;
 
-        // }
-        // this.snakeArray = newSnakeArray;
-        console.log("i'm moving");
-        isGameOver = true;
+        if(head.x < 0 || head.x > canvasWidth) { 
+            isGameOver = true;
+        }
+        if(head.y < 0 || head.y > canvasHeight) { 
+            isGameOver = true;
+        }
+        let canvas = document.getElementById("Snake");
+        let ctx = canvas.getContext("2d");
+        ctx.clearRect(0,0, canvas.width, canvas.height);
+        this.renderSnake(ctx);
+        appleGameObj.renderApple(ctx);
     }
     eatApple() {
         this.addTail();
