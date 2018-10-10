@@ -1,8 +1,4 @@
 "use strict";
-// notes
-/*
-
-*/
 // variable definitions
 
 var headStyle = '#000';
@@ -10,9 +6,9 @@ var tailStyle = '#eee';
 var appleStyle = '#f00';
 var rectangleSide = 10;
 var currentDirection = "right";
-var timeout = 400;
-var canvasWidth = 1000;
-var canvasHeight = 1000;
+var timeout = 200;
+var canvasWidth = 600;
+var canvasHeight = 600;
 var isGameOver = false;
 var snakeGameObj; 
 var appleGameObj;  
@@ -63,18 +59,20 @@ function startGame(){
      interval =setInterval(function() {
             if(isGameOver) {
                 clearInterval(interval);
+                alert('GAME OVER');
+                return;
             }
             snakeGameObj.move();
         },timeout); 
 }
-function resetGame()
-{
+function resetGame(){
     let canvas = document.getElementById("Snake");
     let ctx = canvas.getContext("2d");
+    ctx.clearRect(0,0, canvas.width, canvas.height);
+    setDirection('right');
     initializeSnakeGame(ctx);
 }
 function getRectWithUpdatedPosition(rect) {
-    console.log('rect', rect);
     let newRect;
     switch(currentDirection) {
         case "up":
@@ -96,7 +94,6 @@ function getRectWithUpdatedPosition(rect) {
 }
 function setDirection(direction) {
     currentDirection = direction;
-    console.log('key pressed', direction);
 }
 function createApple() {
 
@@ -126,8 +123,8 @@ function initializeSnakeGame(context) {
     snakeGameObj.renderSnake(context);
     appleGameObj.renderApple(context);  
 }
-function hasGameEnded(headOfSnake) {
-    return headOfSnake.x < 0 || headOfSnake.x > canvasWidth || headOfSnake.y < 0 || headOfSnake.y > canvasHeight
+function isOutOfBounds(headOfSnake) {
+    return headOfSnake.x < 0 || headOfSnake.x > canvasWidth || headOfSnake.y < 0 || headOfSnake.y > canvasHeight;
 }
 // class definitions
 class Rectangle {
@@ -204,11 +201,14 @@ class Snake {
             
         }
     }
-    //TO FIX
     move() {
         let newSnakeArray = [];
         let head = this.snakeArray[0];
-        if(hasGameEnded(head)) {
+        //checks for the gameover conditions before position updates
+        if(isOutOfBounds(head)) {
+            isGameOver = true;
+        }
+        if(this.hasIntersectedWithSelf(head)){
             isGameOver = true;
         }
         if(isGameOver) {
@@ -217,12 +217,16 @@ class Snake {
         }
         
         //adding updated head to array first, then adding the rest of the value
-        let firstRect = getRectWithUpdatedPosition(head);
-        if(hasGameEnded(firstRect)){
+        let newHead = getRectWithUpdatedPosition(head);
+        //run checks for gameover conditions on updated snake head
+        if(isOutOfBounds(newHead)){
             isGameOver = true;
             return;
         }
-        newSnakeArray.push(firstRect);
+        if(this.hasIntersectedWithSelf(newHead)){
+            isGameOver = true;
+        }
+        newSnakeArray.push(newHead);
         for(let i = 1; i < this.snakeArray.length; i++) {
             newSnakeArray.push(this.snakeArray[i-1]);
         }
@@ -243,6 +247,16 @@ class Snake {
         this.addTail();
     }
     hasEatenApple(headOfSnake) {
+        //checks to see if x and y coordinates are the same
         return headOfSnake.x === appleGameObj.x && headOfSnake.y === appleGameObj.y;
+    }
+    hasIntersectedWithSelf(head) {
+        // I set length to greater than 1, bc filtering on the head will by default always bring back the first element, 
+        // and any elements after that will be the true intersection
+        console.log('head',head);
+        const testArr = this.snakeArray.filter(x => x.x === head.x && x.y === head.y);
+        console.log('intersection array', testArr);
+        console.log('has intersected', this.snakeArray.filter(x => x.x === head.x && x.y === head.y).length > 1);
+        return this.snakeArray.filter(x => x.x === head.x && x.y === head.y).length > 1;
     }
 }
